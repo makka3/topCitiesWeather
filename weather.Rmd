@@ -1,0 +1,46 @@
+---
+title: "weather"
+output: html_document
+---
+
+
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(leaflet))
+```
+
+```{r}
+weather <- read.csv("weather.csv")
+```
+
+```{r}
+head(weather)
+#summary(weather)
+
+weather %>%
+  group_by(Weather) %>%
+  summarize(n())
+```
+
+
+
+```{r}
+
+weatherIcons <- iconList(
+  "few clouds" = makeIcon("cloudy.png", 10, 10),
+  "clear sky" = makeIcon("sunny.png", 10, 10)
+)
+```
+
+```{r}
+leaflet(options = leafletOptions(preferCanvas = TRUE)) %>% 
+  #setView(lat = 20,lng = 0,zoom=2) %>%
+  addTiles() %>%
+  addMarkers(data = weather[weather$Weather %in% names(weatherIcons),],
+             lng=~Longitude,
+             lat=~Latitude,
+             icon = ~weatherIcons[weather$Weather])
+```
+
+
+

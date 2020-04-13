@@ -7,30 +7,115 @@ output: html_document
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(leaflet))
+suppressPackageStartupMessages(library(stringr))
 ```
 
 ```{r}
-weather <- read.csv("weather.csv")
+city_info <- read.csv("weather.csv")
 ```
 
 ```{r}
-head(weather)
-#summary(weather)
-
-weather %>%
-  group_by(Weather) %>%
-  summarize(n())
+head(city_info)
 ```
 
+```{r}
+city_info <- city_info %>%
+  mutate(conditions = factor(ifelse(Main_Weather=="overcast clouds", "Overcast",
+                             ifelse(Weather == "Drizzle", "Rain", 
+                             ifelse(Weather == "Mist", "Rain",
+                             ifelse(Weather == "Smoke", "Overcast", as.character(Weather))))))) %>%
+  mutate(weather_main = stringr::str_to_title(Main_Weather))
+```
+
+```{r}
+city_info %>%
+  group_by(conditions) %>%
+  summarize(n=n())
+```
+
+```{r}
+head(city_info)
+```
 
 
 ```{r}
 
 weatherIcons <- iconList(
-  "few clouds" = makeIcon("cloudy.png", 10, 10),
-  "clear sky" = makeIcon("sunny.png", 10, 10)
+  Clear = makeIcon(iconUrl = "Clear.png", iconWidth = 20, iconHeight = 20),
+  Clouds = makeIcon(iconUrl = "Clouds.png", iconWidth = 20, iconHeight = 20),
+  Haze = makeIcon(iconUrl = "Haze.png", iconWidth = 20, iconHeight = 20),
+  Overcast = makeIcon(iconUrl = "Overcast.png", iconWidth = 20, iconHeight = 20),
+  Rain = makeIcon(iconUrl = "Rain.png", iconWidth = 20, iconHeight = 20),
+  Thunderstorm = makeIcon(iconUrl = "Thunderstorm.png", iconWidth = 20, iconHeight = 20)
 )
+
+city_info %>%
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+  addMarkers(lng = ~Longitude, 
+             lat = ~Latitude, 
+             icon = ~weatherIcons[city_info$conditions], 
+             popup = paste("<b>",city_info$City,", ", city_info$Country,"</b>","<br>",
+                           "<b>Population: </b>",city_info$Population,"<br>",
+                           "<b>Weather: </b>",city_info$weather_main,"<br>",
+                           "<b>Temperature: </b>",city_info$temp, " C","<br>",
+                           "<b>Wind Speed: </b>",city_info$Wind_Speed, " km/h",
+                           sep=""))
+
 ```
+
+Notes: Melbourne, Rome, St. Petersburg corrupted
+-------------------------------------------------------------------------------------------------------------------
+Scratch after this point
+
+
+```{r}
+weather <- weather %>%
+  #select(-X) %>%
+  filter(Weather %in% c("haze","mist","light rain")) %>%
+  select(City, Latitude, Longitude, Weather, Temperature) %>%
+  droplevels()
+```
+
+```{r}
+
+weather$Weather
+
+```
+
+```{r}
+#greenLeafIcon <- makeIcon(
+#  iconUrl = "haze.png",
+#  iconWidth = 15, iconHeight = 15,
+#)
+
+weatherIcons2 <- icons(
+  iconUrl = ifelse(weather$Weather == "haze", 
+                   "haze.png",
+            ifelse(weather$Weather == "light rain",
+                   "rain.png",
+                   "mist.png")),
+  iconWidth = 20,
+  iconHeight = 20
+)
+
+leaflet(data = weather[1:20,]) %>% addTiles() %>%
+  addMarkers(~Longitude, ~Latitude, icon = weatherIcons2, popup = ~City)
+```
+
+
+
+```{r}
+weather %>%
+leaflet(options = leafletOptions(preferCanvas = TRUE)) %>% 
+  #setView(lat = 20,lng = 0,zoom=2) %>%
+  addTiles() %>%
+  addMarkers(lng=~Longitude,
+             lat=~Latitude,
+             icon=~weatherIcons[as.numeric(weather$Weather)])
+               #~weatherIcons[weather$Weather])
+```
+
 
 ```{r}
 leaflet(options = leafletOptions(preferCanvas = TRUE)) %>% 
@@ -39,8 +124,16 @@ leaflet(options = leafletOptions(preferCanvas = TRUE)) %>%
   addMarkers(data = weather[weather$Weather %in% names(weatherIcons),],
              lng=~Longitude,
              lat=~Latitude,
-             icon = ~weatherIcons[weather$Weather])
+             icon = list(
+               iconUrl = "cloudy.png",
+               iconWidth = 10,
+               iconHeight = 10
+             ))
+              # ~weatherIcons[weather$Weather])
 ```
 
+```{r}
+weatherIcons
+```
 
 

@@ -1,8 +1,14 @@
+#
+# World Weather Map
+# Author: M. Makkawi
+#
+
 library(shiny)
 library(leaflet)
-library(tidyverse)
-library(shinydashboard)
+library(dplyr)
 library(stringr)
+
+# Data Processing
 
 city_info <- read.csv("weather.csv")
 
@@ -35,10 +41,10 @@ ui <- fluidPage(
       h3("World Weather Map"),
       selectInput(
         "weatherConditions",
-        "Weather",
+        "Weather Conditions",
         choices = c("All","Clear", "Rain", "Clouds", "Thunderstorm", "Haze", "Overcast")
       ),
-      sliderInput("temps","Temperatures", as.integer(min(city_info$temp)), as.integer(max(city_info$temp)), value = range(city_info$temp), step = 1)
+      sliderInput("temps","Temperature Range", as.integer(min(city_info$temp)), as.integer(max(city_info$temp)), value = range(city_info$temp), step = 1)
       )
     )
   )
@@ -67,10 +73,9 @@ server <- function(input, output) {
     )
     
     leaflet(options = leafletOptions(minZoom = 2)) %>%
-    addTiles() %>%
-    #addProviderTiles(providers$Esri.WorldImagery) %>%
-    setView(lat = 30, lng = 30, zoom = 2) %>%
-    setMaxBounds(lng1 = -110, lat1 = -70, lng2 = 140, lat2 = 80 ) %>%
+    addProviderTiles(providers$Esri.WorldTerrain) %>%
+    setView(lat = 30, lng = 30, zoom = 3) %>%
+    setMaxBounds(lng1 = -140, lat1 = -70, lng2 = 155, lat2 = 80 ) %>%
     addMarkers(data = city_info,
                lng = ~Longitude, 
                lat = ~Latitude, 
@@ -83,5 +88,7 @@ server <- function(input, output) {
                              sep=""))
   })
 }
+
+# Run Application
 
 shinyApp(ui = ui, server = server)

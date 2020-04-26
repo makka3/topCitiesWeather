@@ -10,7 +10,7 @@ library(stringr)
 
 # Data Processing
 
-city_info <- read.csv("weather.csv")
+city_info <- read.csv("data/weather.csv")
 
 city_info <- city_info %>%
   mutate(conditions = factor(ifelse(Main_Weather=="overcast clouds", "Overcast",
@@ -74,13 +74,14 @@ server <- function(input, output) {
     
     leaflet(options = leafletOptions(minZoom = 2)) %>%
     addProviderTiles(providers$Esri.WorldTerrain) %>%
-    setView(lat = 30, lng = 30, zoom = 3) %>%
-    setMaxBounds(lng1 = -140, lat1 = -70, lng2 = 155, lat2 = 80 ) %>%
+    setView(lat = 30, lng = 30, zoom = 2) %>%
+    setMaxBounds(lng1 = -140, lat1 = -70, lng2 = 155, lat2 = 70 ) %>%
     addMarkers(data = city_info,
                lng = ~Longitude, 
                lat = ~Latitude, 
                icon = ~weatherIcons[city_info$conditions], 
                popup = paste("<b>",city_info$City,", ", city_info$Country,"</b>","<br>",
+                             "<b>Updated: </b>",city_info$DateTime,"<br>",
                              "<b>Population: </b>",city_info$Population,"<br>",
                              "<b>Weather: </b>",city_info$weather_main,"<br>",
                              "<b>Temperature: </b>",city_info$temp, " C","<br>",

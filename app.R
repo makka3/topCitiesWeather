@@ -7,6 +7,13 @@ library(shiny)
 library(leaflet)
 library(dplyr)
 library(stringr)
+library(rdrop2)
+
+# Data Download (from Dropbox)
+
+token <- drop_auth(rdstoken = 'token.rds')
+
+drop_download('/Apps/weather_app_makk/weather_csv/weather.csv', local_path = 'data/weather.csv', overwrite=TRUE)
 
 # Data Processing
 

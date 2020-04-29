@@ -24,7 +24,8 @@ city_info <- city_info %>%
                                     ifelse(Weather == "Drizzle", "Rain", 
                                     ifelse(Weather == "Mist", "Rain",
                                     ifelse(Weather == "Fog", "Haze",
-                                    ifelse(Weather == "Smoke", "Overcast", as.character(Weather)))))))) %>%
+                                    ifelse(Weather == "Smoke", "Overcast",
+                                    ifelse(Weather == "Dust", "Haze", as.character(Weather))))))))) %>%
   mutate(weather_main = stringr::str_to_title(Main_Weather))
 
 # User Interface
@@ -76,7 +77,8 @@ server <- function(input, output) {
       Haze = makeIcon(iconUrl = "img/Haze.png", iconWidth = 20, iconHeight = 20),
       Overcast = makeIcon(iconUrl = "img/Overcast.png", iconWidth = 20, iconHeight = 20),
       Rain = makeIcon(iconUrl = "img/Rain.png", iconWidth = 20, iconHeight = 20),
-      Thunderstorm = makeIcon(iconUrl = "img/Thunderstorm.png", iconWidth = 20, iconHeight = 20)
+      Thunderstorm = makeIcon(iconUrl = "img/Thunderstorm.png", iconWidth = 20, iconHeight = 20),
+      Snow = makeIcon(iconUrl = "img/Snow.png", iconWidth = 20, iconHeight = 20)
     )
     
     leaflet(options = leafletOptions(minZoom = 2)) %>%

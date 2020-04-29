@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python updateWeather.py && python csv_upload.py
+/anaconda/bin/python3.6 /Users/mohamadmakkaoui/Desktop/Code/WorldWeatherMap/updateWeather.py && /anaconda/bin/python3.6 /Users/mohamadmakkaoui/Desktop/Code/WorldWeatherMap/csv_upload.py
